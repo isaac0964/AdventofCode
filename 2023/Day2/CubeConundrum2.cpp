@@ -5,17 +5,14 @@
 #include <string>
 
 
-
-
 int isPossibleGame(std::string line) {
     // Return the id of the game if it is possible, 0 otherwise
-    struct 
 
-    // unordered map with max values from config for each color
-    std::unordered_map<std::string, int> maxConfig = {
-        {"r", 12},
-        {"g", 13},
-        {"b", 14},
+    // unordered map with minimum number of cubes to make gamme possible
+    std::unordered_map<std::string, int> minValues = {
+        {"r", 0},
+        {"g", 0},
+        {"b", 0},
     };
 
     // Expression to match to get number and color
@@ -30,21 +27,21 @@ int isPossibleGame(std::string line) {
         std::string number_str = match.str(1);
         int number = stoi(number_str);
         std::string color = match.str(2);
-        
-        if (number > maxConfig[color]){
-            return 0;
+
+        // Update minimum number of cubes to make game possible
+        if (number > minValues[color]){
+            minValues[color] = number;
         }
+    }   
+
+    int power = 1;
+
+    // MUltiply minimum number of cubes
+    for (auto x: minValues) {
+        power *= x.second;
     }
-
-    // Get game id
-    std::regex pattern_id("(\\d+)");
-    std::smatch match;
-
-    std::regex_search(line, match, pattern_id);
-    std::string id_str = match.str();  // Get id as str
-    int id = stoi(id_str);  // convert id to ing
     
-    return id;
+    return power;
 }
 
 int main(){
@@ -65,11 +62,11 @@ int main(){
     // Read file line by line
     while (std::getline(file, line)) {
         // Get id if game is possible
-        int id = isPossibleGame(line);
-        sum += id;
+        int power = isPossibleGame(line);
+        sum += power;
     }
 
-    std::cout << "The sum of ids is: " << sum << std::endl;
+    std::cout << "The sum of power is: " << sum << std::endl;
 
     // Close file
     file.close();
