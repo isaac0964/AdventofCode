@@ -20,7 +20,6 @@ int extractInt(std::string line) {
         {"seven", 7},
         {"eight", 8},
         {"nine", 9},
-        {"one", 1}
     };
 
     for (int i=0; i < line.length(); i++) {
