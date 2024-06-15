@@ -54,8 +54,8 @@ Numbers getNumbers(std::string game) {
     return numbers;
 }
 
-int getPoints(std::string game) {
-    // Get the number of points for a given game
+int getNoWinners(std::string game) {
+    // Get the number of winners of game
 
     Numbers numbers = getNumbers(game);
 
@@ -70,19 +70,39 @@ int getPoints(std::string game) {
         }
     }
 
-    // If there are winning numbers, get number of points
-    int points = 0;
-    if (count > 0) {
-        points = pow(2, count-1);
-    }
-    return points;
+    return count;
 }
+
+int getTotalScratch(std::vector<int> winnersPerGame, std::vector<int> cardsPerId) {
+    // Function to get the total number of cards
+
+    // Iterate over each card
+    for (int i=0; i<winnersPerGame.size(); i++) {
+        // Iterate over each winner of current card
+        for (int j=i+1; j<=winnersPerGame[i]+i; j++) {
+            // Avoid getting out of bound
+            if (j>=winnersPerGame.size()) {
+                break;
+            }
+            // Add number current of cards (i) to number of cards of current winner
+            cardsPerId[j] += cardsPerId[i];
+        }
+    }
+
+    int total = 0;
+
+    for (auto x: cardsPerId) {
+        total += x;
+    }
+    return total;
+}
+
 
 
 int main() {
 
-    // Total points in all games
-    int totalPoints = 0;
+    // Number of winners for each card
+    std::vector<int> winnersPerGame;
 
     // Open file in read mode
     std::ifstream file("input.txt");
@@ -97,12 +117,17 @@ int main() {
     std::string game;
 
     while(std::getline(file, game)) {
-        int points = getPoints(game);
-        // Sum game points to total
-        totalPoints += points;
+        winnersPerGame.push_back(getNoWinners(game));
     }
 
-    std::cout << "Total points: " << totalPoints << std::endl;
+    // Number of scratchcards for each id (Initially each id has 1 card)
+    std::vector<int> cardPerId (winnersPerGame.size(), 1);
+
+    int total = getTotalScratch(winnersPerGame, cardPerId);
+
+    std::cout << "The total number of scratchcards is: " << total << std::endl;
+
     file.close();
+
     return 0;
 }
