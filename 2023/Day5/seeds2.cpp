@@ -18,6 +18,76 @@ std::vector<unsigned long long> extractNumbers(std::string string) {
     return seeds;
 }
 
+std::set<std::pair<unsigned long long, unsigned long long>> getLocs(std::vector<unsigned long long> seeds, std::vector<std::vector<std::vector<unsigned long long>>> mappings){
+    // Get locs for given ranges of seeds
+    // Get vector of (start, end (excluding end)) pair for each seed range
+    std::vector<std::pair<unsigned long long, unsigned long long>> seeds_ranges;
+    for (size_t i = 0; i<seeds.size(); i+=2){
+        // Add start and end of range to vector
+        seeds_ranges.push_back({seeds[i], seeds[i] + seeds[i+1]});
+    }   
+
+    // Store mapped seeds here
+    std::vector<std::pair<unsigned long long, unsigned long long>> processed;
+
+    // Convert with each mapping
+    for (auto map: mappings) {
+        //Clear mapped seeds for new mapping
+        processed.clear(); 
+
+        // Convert each range
+        while (seeds_ranges.size() > 0) {
+            // Get last range in ranges vector and remove it from vector
+            std::pair<unsigned long long, unsigned long long> r = seeds_ranges.back();
+            seeds_ranges.pop_back();
+
+            // Get start and end of range
+            unsigned long long sStart = r.first;
+            unsigned long long sEnd = r.second;
+
+            // Bool for checking if there is conversion
+            bool conv = 0;
+
+            // for the given map, check each line if there is a mapping for the given seed
+            for (auto l: map) {
+                // Get destination, source and len from current line
+                unsigned long long dst = l[0];
+                unsigned long long src = l[1];
+                unsigned long long len = l[2];
+
+                // Get lower and upper bound of ranges (seed range and map range)
+                unsigned long long lower = std::max(sStart, src);
+                unsigned long long upper = std::min(sEnd, src+len);
+
+                // Check if there is overlap
+                if (lower < upper) {
+                    conv = 1;
+                    // If overlap convert current range
+                    processed.push_back({dst + (lower - src), dst + (upper - src)});
+                    // Check if there are lower/upper ranges after remaning of overlap (if true, add this to ranges that need to be processed)
+                    if (sStart < lower) {
+                        seeds_ranges.push_back({sStart, lower});
+                    }
+
+                    if (sEnd > upper)
+                    {
+                        seeds_ranges.push_back({upper, sEnd});
+                    }
+                    break;
+                }
+            }
+            // If no conversion after processing all lines, keep same range
+            if (!conv) {
+                processed.push_back({sStart, sEnd});
+            }
+        }
+        seeds_ranges = processed;
+    }
+    // Get locs in a set so they are ordered
+    std::set<std::pair<unsigned long long, unsigned long long>> locs(seeds_ranges.begin(), seeds_ranges.end());
+    return locs;
+}
+
 
 int main() {
 
@@ -53,7 +123,9 @@ int main() {
             tempMap.clear();
         }
         
+        // Get numbers from given line (dst, src, len)
         std::vector <unsigned long long> numbers = extractNumbers(line);
+        // Only store extracted if there are numbers
         if (!numbers.empty())
         {
             tempMap.push_back(numbers);
@@ -61,89 +133,7 @@ int main() {
     }
     mappings.push_back(tempMap);  
 
-
-    // Get vector of (start, end (excluding end)) pair for each seed range
-    std::vector<std::pair<unsigned long long, unsigned long long>> seeds_ranges;
-    for (size_t i = 0; i<seeds.size(); i+=2){
-        // Add start and end of range to vector
-        seeds_ranges.push_back({seeds[i], seeds[i] + seeds[i+1]});
-    }   
-
-    // Store mapped seeds here
-    std::vector<std::pair<unsigned long long, unsigned long long>> processed;
-
-    // Convert with each mapping
-    int i = 0;
-    for (auto map: mappings) {
-        if (i==6) std::cout << "-----------------Inicia mapeo --------------------------- " << i << std::endl;
-        
-        //Clear mapped seeds
-        processed.clear(); 
-
-        // Convert each range
-        while (seeds_ranges.size() > 0) {
-            // Get last range in ranges vector and remove it from vector
-            std::pair<unsigned long long, unsigned long long> r = seeds_ranges.back();
-            seeds_ranges.pop_back();
-
-            // Get start and end of range
-            unsigned long long sStart = r.first;
-            unsigned long long sEnd = r.second;
-
-            // Bool to check if there is conversion
-            bool conv = 0;
-
-            // for the given map, check each line if there is a mapping for the given seed
-            if (i==6) std::cout << "Empezar con: " << sStart << " " << sEnd << std::endl; 
-            for (auto l: map) {
-                // Get destination, source and len from current line
-                unsigned long long dst = l[0];
-                unsigned long long src = l[1];
-                unsigned long long len = l[2];
-
-                // Get lower and upper bound of ranges (seed range and map range)
-                unsigned long long lower = std::max(sStart, src);
-                unsigned long long upper = std::min(sEnd, src+len);
-
-                // Check if there is overlap
-                if (lower < upper) {
-                    conv = 1;
-                    // If overlap convert current range
-                    if (i==6) std::cout << "Antes: " << sStart << " " << " " << sEnd << std::endl;
-                    if (i==6) std::cout << "Despues: " << dst + (lower - src) << " " << dst + (upper - src) << std::endl;
-                    processed.push_back({dst + (lower - src), dst + (upper - src)});
-                    // Check if there are lower/upper ranges after remaning of overlap (if true, add this to ranges that need to be processed)
-                    if (sStart < lower) {
-                        seeds_ranges.push_back({sStart, lower});
-                        if (i==6) std::cout << "HOLA" << std::endl;
-                    }
-
-                    if (sEnd > upper)
-                    {
-                        seeds_ranges.push_back({upper, sEnd});
-                        if (i==6) std::cout << "HOLA2" << std::endl;
-                    }
-
-                    break;
-                }
-            }
-            // If no conversion after processing all lines, keep same range
-            if (!conv) {
-                processed.push_back({sStart, sEnd});
-                if (i==6) std::cout << "HOLA3" << std::endl;
-            }
-        }
-        seeds_ranges = processed;
-        if (i==6) {
-        std::cout << "-----------------Fin mapeo --------------------------- " <<i  << std::endl;
-        }
-        i++;
-    }
-
-
-    // Get locs in a set so they are ordered
-    std::set<std::pair<unsigned long long, unsigned long long>> locs(seeds_ranges.begin(), seeds_ranges.end());
-    
+    std::set<std::pair<unsigned long long, unsigned long long>> locs = getLocs(seeds, mappings);
     std::cout << "Lowest location is: " << locs.begin() -> first << std::endl;
 
     file.close();
