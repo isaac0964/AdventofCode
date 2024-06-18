@@ -12,7 +12,6 @@ std::vector<unsigned long long> extractNumbers(std::string string) {
     auto end = std::sregex_iterator();
     for (std::regex_iterator i = begin; i != end; i++) {
         std::smatch match = *i;
-        std::cout << stoull(match.str()) << std::endl;
         seeds.push_back(stoull(match.str()));
     }
     return seeds;
