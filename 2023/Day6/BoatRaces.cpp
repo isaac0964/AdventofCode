@@ -79,7 +79,6 @@ int main() {
         // Get min and max tp for given race
         std::pair<int, int>tps = getMaxMinTimesPressed(ts[i], ds[i]);
         // The number of ways of breaking record is (tp_max-tp_min)
-        std::cout << tps.second << " "  << tps.first << std::endl;
         ways *= (tps.second - tps.first);
     }
 
