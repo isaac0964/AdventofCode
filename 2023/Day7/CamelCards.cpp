@@ -138,7 +138,6 @@ int main() {
     int total = 0;
     for (int i = 0; i<hands.size(); i++) {
         total += hands[i].bid * (hands.size() - i);
-        //std::cout << hands[i].bid << " " << (hands.size() - i) << std::endl;
     }   
 
     std::cout << "The total winning is: " << total << std::endl;
