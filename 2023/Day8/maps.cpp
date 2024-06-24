@@ -54,7 +54,7 @@ int main() {
 
     int steps = 0;
     
-    // navigate according to 
+    // navigate
     while (node != "ZZZ")
     {
         for (auto c: dirs) {
