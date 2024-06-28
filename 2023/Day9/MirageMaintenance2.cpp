@@ -96,5 +96,5 @@ int main() {
     // Stop chronometer 
     auto stop_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds> (stop_time - start_time);
-    std::cout << "Time of execution: " << duration.count() << std::endl;
+    std::cout << "Time of execution: " << duration.count() << " microseconds" << std::endl;
 }
