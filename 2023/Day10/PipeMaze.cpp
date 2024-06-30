@@ -123,7 +123,7 @@ int main() {
     
     int steps = getStepsFarthest(maze);
 
-    std::cout << steps << std::endl;
+    std::cout << "Total number of steps: " << steps << std::endl;
     
     auto stop_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds> (stop_time - start_time);
